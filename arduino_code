@@ -1,0 +1,45 @@
+#include <NewPing.h>
+#include <Servo.h>
+Servo myservo;
+const int pot=0; //read pot from port 0
+#define TRIG_PIN 12
+#define ECHO_PIN 11
+#define MAX_DISTANCE 200
+long duration;
+long distance;
+String first;
+String second;
+String third;
+NewPing sonar(TRIG_PIN,ECHO_PIN,MAX_DISTANCE);
+
+void setup() {
+  myservo.attach(9);
+  Serial.begin(9600);
+}
+void loop() {
+  digitalWrite(TRIG_PIN,LOW); //clears trigPin by setting to LOW
+  delayMicroseconds(5);
+  digitalWrite(TRIG_PIN, HIGH); //Triggers sensor by setting trigPin to high for 10 ms
+  delayMicroseconds(10);
+  digitalWrite(TRIG_PIN,LOW);
+  duration=pulseIn(ECHO_PIN, HIGH); //Reads time signal takes to bounce back
+  distance=duration*0.034/2; //d=vt
+  for(int i=0;i<180;i+=2)
+  {
+    myservo.write(i);
+    delay(38);
+    first=String(sonar.ping_cm());
+    second=String(i);
+    third="1";
+    Serial.println(first+"\t"+second+"\t"+third);
+  }
+  for(int i=178;i>=0;i-=2)
+  {
+   myservo.write(i);
+    delay(38);
+    first=String(sonar.ping_cm());
+    second=String(i);
+    third="0";
+    Serial.println(first+"\t"+second+"\t"+third);
+  }
+}
