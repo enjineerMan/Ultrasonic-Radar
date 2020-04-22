@@ -1,0 +1,256 @@
+import processing.serial.*;
+import java.awt.event.KeyEvent;
+Serial port;
+
+float []vals=new float[3];
+float distance = 0; //distance detected from radar
+int readAngle=0; //angle of servo
+boolean servoForward=true;
+int radarDelay=33;
+int glitchDelay=450;
+class Line
+{
+  //variables for lines
+  int x=500;
+  int y=450;
+  int R=12;  //RGB values of line
+  int G=252;
+  int B=24;
+  int angle;
+  int len=450;
+  //variables for detected objects
+  int detected=0;  //opacity of detected objects
+  float detected_x=0; // coordinates of detected objects
+  float detected_y=0;
+  boolean isDetected=false;
+  int timer=0;//keeps track of time passed since object detected
+  boolean isTicking=false; //whether timer is ticking
+  Line(int a)
+  {
+    this.angle=a;
+  }
+}
+  Line[] lines=new Line[180];
+void setup()
+{
+  
+  size(1000,500);
+  port = new Serial(this,"COM6",9600);
+  port.bufferUntil('\n');
+   background(0,0,0);
+     for( i=0; i<180;i+=2)
+      {
+        lines[i]=new Line(i);
+        
+      }
+      i=0;
+      delay(2400);
+}
+void lineAngle(int x, int y, float angle, float length)
+{
+  float radians=angle*3.141593/180;
+  line(x, y, x+cos(radians)*length, y-sin(radians)*length);
+}
+
+void resetRGB(int a) //reset RGB values for lines[a]
+{
+  lines[a].R=12;
+  lines[a].G=252;
+  lines[a].B=24;
+}
+
+void decrementRGB(int a) //decreases RGB values at lines[a]
+{
+  if(lines[a].R>0)
+  {
+    lines[a].R-=1;
+    lines[a].G-=21;
+    lines[a].B-=2;
+  }
+}
+void drawArcs()
+{
+  stroke(12,252,32);
+  noFill();
+  arc(500,450,901,901,PI,2*PI);
+  arc(500,450,600,600,PI,2*PI);
+  arc(500,450,300,300,PI,2*PI);
+  fill(50,205,50);
+  textSize(15);
+  text("10 cm",505,320); 
+  text("20 cm",505,170);
+  text("30 cm",505,15);
+}
+int i=0;
+boolean forward=true;
+boolean tested=false;
+int angleDetected=250;//angle at which object is detected (set to arbitary number)
+void draw() /////////////////////////////WORK ON RECALIBRATION NEXT
+{
+  stroke(0,0,0);
+  fill(0,0,0);
+  rect(0,450,150,50);
+  stroke(12,252,32);
+  line(0,450,1000,450); //horizontal axis
+  line(500,0,500,450);//vertical axis
+  textSize(20);
+  fill(12,252,32);
+  text("Angle: " +i,25,485);  
+  fill(255,255,255);
+
+  if(forward==true)
+  {
+    strokeWeight(3);
+    if(0<distance&&distance<=30)
+    {
+      if(i>=4)
+      {
+        if(lines[i-2].isDetected==false&&lines[i-4].isDetected==false) //only draws detected object if no object was detected at previous two angles. Starts at 4th degree to avoid array out of bounds
+        {
+         angleDetected=i;
+        }
+      }
+     lines[i].isTicking=true;
+      lines[i].isDetected=true;
+    }
+    resetRGB(i);
+  
+    stroke(lines[i].R,lines[i].G,lines[i].B); //new radar line
+    lineAngle(500,450,i,450);
+    if(i==(angleDetected+30))
+    {
+       lines[i].detected=250; //Set sphere object to visible 
+        //println(i);
+        lines[i].detected_x=500-PI+distance*15*cos(i*PI/180);  //set coordinates of detected object
+        lines[i].detected_y=450+PI-distance*15*sin(i*PI/180);
+        stroke(lines[i].detected,0,0);
+        fill(lines[i].detected,0,0);
+        circle(lines[i].detected_x,lines[i].detected_y,20); //draw detected object
+        angleDetected=250;
+    }
+    
+    for(int j=0;j<i;j+=2) //decrease opacity of every line before the current one, creating a blurred trail effect
+    {
+       if((i%4)==0)
+       {
+        decrementRGB(j);  
+       }      
+       if(lines[j].detected>0) //decrease brightness of detected objects' red value if it is greater than 0
+       {
+         lines[j].detected-=10;
+
+           stroke(lines[j].detected,0,0);
+           fill(lines[j].detected,0,0);
+           circle(lines[j].detected_x,lines[j].detected_y,20);
+       }
+       stroke(lines[j].R,lines[j].G,lines[j].B);
+       lineAngle(500,450,j,450);
+       if(j==(i-2))
+       {
+         drawArcs();
+       }
+    }
+   delay(radarDelay);
+  }else //going backwards
+  {
+    strokeWeight(3);
+    if(0<distance&&distance<=30)
+    {
+      if(i<=174)
+      {
+       if(lines[i+2].isDetected==false&&lines[i+4].isDetected==false) //only draws detected object if no object was detected at previous two angles. Starts at 174th degree to avoid array out of bounds
+       {
+        angleDetected=i; //store angle at which object is detected
+       }
+    }
+      lines[i].isTicking=true; 
+      lines[i].isDetected=true;
+   }
+    resetRGB(i);
+    stroke(lines[i].R,lines[i].G,lines[i].B);
+    lineAngle(500,450,i,450);
+    drawArcs();
+    if(i==(angleDetected-30)) //draws detected object 20 degrees after it's been detected
+    {
+      lines[i].detected=250; //Set sphere object to visible by "turning on" red valueof object
+        lines[i].detected_x=500-PI+distance*15*cos((i)*PI/180); //coordinates of detected object
+        lines[i].detected_y=450+PI-distance*15*sin((i)*PI/180);
+        stroke(lines[i].detected,0,0);                        //drawing detected object
+        fill(lines[i].detected,0,0);
+        circle(lines[i].detected_x,lines[i].detected_y,20);
+        angleDetected=250; //reset detected angle
+    }
+    for(int j=178;j>i;j-=2)
+    {
+      if(i%4==0)
+      {
+         decrementRGB(j);
+      }
+       if(lines[j].detected>0)
+       {
+         lines[j].detected-=10;
+         stroke(lines[j].detected,0,0);
+         fill(lines[j].detected,0,0);
+         circle(lines[j].detected_x,lines[j].detected_y,20);  
+       }
+      stroke(lines[j].R,lines[j].G,lines[j].B);
+      lineAngle(500,450,j,450); 
+      if(j==(i+2))
+      {
+        drawArcs();
+      }
+    }
+   delay(radarDelay); 
+  }
+  if(i==178&&forward==true)
+  {
+    forward=false;
+    for(int l=0; l<180;l+=2) //whenever radar hits either end, reset all objects at every angle to not detected
+    {
+      lines[l].isDetected=false;
+    }
+  }
+  if(i==0&&forward==false)
+  {
+     forward=true; 
+    for(int l=0; l<180;l+=2)
+    {
+      lines[l].isDetected=false;
+    }
+
+     delay(glitchDelay); //to make up for my servo delay glitch
+  }
+
+  i=readAngle;
+  stroke(12,252,32);
+   line(0,450,1000,450); //horizontal axis
+  line(500,0,500,450);//vertical axis
+  
+  for(int r=0; r<180;r+=2)
+  {
+    if(lines[r].timer==3000)//if 3 seconds have passed since object was created, erase the object and reset timer
+    {
+      stroke(0,0,0);
+      fill(0,0,0);
+      lines[r].isTicking=false;      
+      lines[r].timer=0;
+    }
+    if(lines[r].isTicking) //add 24 milliseconds to every active timer
+    {
+      lines[r].timer+=20;
+    }
+  }
+}
+void serialEvent(Serial port)
+{
+  vals = float(splitTokens(port.readString()));
+  distance=(float)vals[0];
+  readAngle=(int)vals[1];
+  if((int)vals[2]==1)
+  {
+   servoForward=true;
+  }else if((int)vals[2]==0)
+  {
+    servoForward=false;
+  }
+}
