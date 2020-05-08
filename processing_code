@@ -23,8 +23,7 @@ class Line
   float detected_x=0; // coordinates of detected objects
   float detected_y=0;
   boolean isDetected=false;
-  int timer=0;//keeps track of time passed since object detected
-  boolean isTicking=false; //whether timer is ticking
+
   Line(int a)
   {
     this.angle=a;
@@ -110,7 +109,6 @@ void draw() /////////////////////////////WORK ON RECALIBRATION NEXT
          angleDetected=i;
         }
       }
-     lines[i].isTicking=true;
       lines[i].isDetected=true;
     }
     resetRGB(i);
@@ -120,9 +118,8 @@ void draw() /////////////////////////////WORK ON RECALIBRATION NEXT
     if(i==(angleDetected+30))
     {
        lines[i].detected=250; //Set sphere object to visible 
-        //println(i);
-        lines[i].detected_x=500-PI+distance*15*cos(i*PI/180);  //set coordinates of detected object
-        lines[i].detected_y=450+PI-distance*15*sin(i*PI/180);
+        lines[i].detected_x=500+distance*15*cos(i*PI/180);  //set coordinates of detected object
+        lines[i].detected_y=450-distance*15*sin(i*PI/180);
         stroke(lines[i].detected,0,0);
         fill(lines[i].detected,0,0);
         circle(lines[i].detected_x,lines[i].detected_y,20); //draw detected object
@@ -163,7 +160,6 @@ void draw() /////////////////////////////WORK ON RECALIBRATION NEXT
         angleDetected=i; //store angle at which object is detected
        }
     }
-      lines[i].isTicking=true; 
       lines[i].isDetected=true;
    }
     resetRGB(i);
@@ -173,8 +169,8 @@ void draw() /////////////////////////////WORK ON RECALIBRATION NEXT
     if(i==(angleDetected-30)) //draws detected object 20 degrees after it's been detected
     {
       lines[i].detected=250; //Set sphere object to visible by "turning on" red valueof object
-        lines[i].detected_x=500-PI+distance*15*cos((i)*PI/180); //coordinates of detected object
-        lines[i].detected_y=450+PI-distance*15*sin((i)*PI/180);
+        lines[i].detected_x=500+distance*15*cos((i)*PI/180); //coordinates of detected object
+        lines[i].detected_y=450-distance*15*sin((i)*PI/180);
         stroke(lines[i].detected,0,0);                        //drawing detected object
         fill(lines[i].detected,0,0);
         circle(lines[i].detected_x,lines[i].detected_y,20);
@@ -226,20 +222,7 @@ void draw() /////////////////////////////WORK ON RECALIBRATION NEXT
    line(0,450,1000,450); //horizontal axis
   line(500,0,500,450);//vertical axis
   
-  for(int r=0; r<180;r+=2)
-  {
-    if(lines[r].timer==3000)//if 3 seconds have passed since object was created, erase the object and reset timer
-    {
-      stroke(0,0,0);
-      fill(0,0,0);
-      lines[r].isTicking=false;      
-      lines[r].timer=0;
-    }
-    if(lines[r].isTicking) //add 24 milliseconds to every active timer
-    {
-      lines[r].timer+=20;
-    }
-  }
+
 }
 void serialEvent(Serial port)
 {
