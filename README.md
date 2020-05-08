@@ -16,7 +16,7 @@ The ultrasonic sensor operates by sending out sound waves, and recording how lon
 
 ![image](https://user-images.githubusercontent.com/62212652/81457275-704b6300-9163-11ea-902e-bbbc0df75a3b.png)
 
-The blurred trail effect on both the radar lines and the red dots happens by simply decreasing the colour values with each increment in degree. The if(i%4==0) ensures that lines will only be drawn at every fourth degree for a more spaced out, cleaner look. 
+The blurred trail effect on both the radar lines and the red dots happens by simply decreasing the colour values with each increment in degree. The 'if(i%4==0)' ensures that lines will only be drawn at every fourth degree for a more spaced out, cleaner look. 
 ![image](https://user-images.githubusercontent.com/62212652/81453460-95d26f80-9157-11ea-962e-9e1483911495.png)
 
 The following is the arduino code used to write three pieces of information to the serial monitor, which is then read by processing: the distance of the current object detected, the angle of the servo motor, and whether the servo is going forward or backward.  
