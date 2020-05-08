@@ -12,6 +12,10 @@ Once an object is detected by the ultrasonic sensor (HC-SR04), the member variab
 
 ![image](https://user-images.githubusercontent.com/62212652/81452132-12634f00-9154-11ea-85ad-e1f61cca976e.png)
 
+The ultrasonic sensor operates by sending out sound waves, and recording how long it takes for them to return. After that, it's simple kinematics to determine how far away the objects are.
+
+![image](https://user-images.githubusercontent.com/62212652/81457275-704b6300-9163-11ea-902e-bbbc0df75a3b.png)
+
 The blurred trail effect on both the radar lines and the red dots happens by simply decreasing the colour values with each increment in degree. The if(i%4==0) ensures that lines will only be drawn at every fourth degree for a more spaced out, cleaner look. 
 ![image](https://user-images.githubusercontent.com/62212652/81453460-95d26f80-9157-11ea-962e-9e1483911495.png)
 
@@ -26,3 +30,4 @@ We then parse the information into a float array called 'vals.'
 The following code is included in the setup function to declare the port that we're reading from, and states that the serialEvent function will execute every time there is a line break in the serial monitor. 
 ![image](https://user-images.githubusercontent.com/62212652/81456712-67599200-9161-11ea-8b92-77773d0f3778.png)
 
+These are the main components of the program. Contact me at d352wang@uwaterloo.ca if you have further questions!
