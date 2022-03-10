@@ -1,7 +1,7 @@
 # Ultrasonic-Radar
 Ultrasonic Radar
 
-Radar project made with Arduino, a servo motor and ultrasonic sensor. Demonstration can be found at https://drive.google.com/open?id=1UHdlioWGUSu0HkprwKKyJVCmZePkeGMc
+Radar project made with Arduino, a servo motor and ultrasonic sensor. Demonstration can be found at https://drive.google.com/open?id=1UHdlioWGUSu0HkprwKKyJVCmZePkeGMc (view in HD!)
 
 The foundation of the program is an object array of size 180 that stores a line for every degree in the semicircle (although only half of the objects in the array are used). 
 
